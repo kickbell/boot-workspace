@@ -1,6 +1,7 @@
 package com.ex01.basic.controller;
 
 import com.ex01.basic.dto.MemberDto;
+import com.ex01.basic.exception.MemberDuplicateException;
 import com.ex01.basic.exception.MemberNotFoundException;
 import com.ex01.basic.service.MemberService;
 import org.springframework.http.HttpStatus;
@@ -64,6 +65,24 @@ public class MemberController {
         }
         //return ResponseEntity.status(HttpStatus.OK).build();
         return ResponseEntity.ok().build();
+    }
+    @DeleteMapping("{id}")
+    public ResponseEntity<Void> deleteMember(@PathVariable("id") int id){
+        try {
+            memberService.delMember( id );
+        } catch (MemberNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+    @PostMapping
+    public ResponseEntity<String> register(@ModelAttribute MemberDto memberDto){
+        try {
+            memberService.insert( memberDto );
+        } catch (MemberDuplicateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("동일 id 존재");
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body("회원 가입 성공");
     }
 }
 

@@ -1,6 +1,7 @@
 package com.ex01.basic.service;
 
 import com.ex01.basic.dto.MemberDto;
+import com.ex01.basic.exception.MemberDuplicateException;
 import com.ex01.basic.exception.MemberNotFoundException;
 import com.ex01.basic.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,22 @@ public class MemberService {
         if( !bool ) //bool ==false
             throw new MemberNotFoundException("수정 사용자 없");
         memberRepository.save( id, memberDto );
+    }
+    public void delMember(int id ){
+        /*
+        boolean bool =  memberRepository.existById(id);
+        if( !bool )
+           throw new MemberNotFoundException("삭제 사용자 없음");
+         */
+        boolean bool =  memberRepository.deleteById( id );
+        if( !bool )
+            throw new MemberNotFoundException("삭제 사용자 없음");
+    }
+    public void insert(MemberDto memberDto ){
+        boolean bool = memberRepository.deleteById( memberDto.getId() );
+        if( bool )
+            throw new MemberDuplicateException("중복 id");
+        memberRepository.save( memberDto );
     }
 }
 

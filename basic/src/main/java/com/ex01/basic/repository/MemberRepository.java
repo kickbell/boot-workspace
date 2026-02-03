@@ -39,4 +39,10 @@ public class MemberRepository {
     public void save(int id,MemberDto memberDto ){
         DB.set(id-1 , memberDto); //index, 변경할 값
     }
+    public boolean deleteById( int id ){
+        return DB.removeIf( m -> m.getId() == id );
+    }
+    public void save( MemberDto memberDto ){
+        DB.add( memberDto );
+    }
 }
