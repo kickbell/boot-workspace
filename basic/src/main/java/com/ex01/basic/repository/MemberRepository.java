@@ -14,9 +14,9 @@ public class MemberRepository {
     public MemberRepository(){
         //System.out.println("MemberRepository 생성자");
         DB = new ArrayList<>();
-        DB.add(new MemberDto(1,"aaa","aaa","USER") );
-        DB.add(new MemberDto(2,"bbb","bbb","USER") );
-        DB.add(new MemberDto(3,"ccc","ccc","USER") );
+        DB.add(new MemberDto(1,"aaa","aaaS","USER") );
+        DB.add(new MemberDto(2,"bbb","bbbS","USER") );
+        DB.add(new MemberDto(3,"ccc","cccS","USER") );
     }
     public List<MemberDto> findAll(){
         return DB;
@@ -29,6 +29,10 @@ public class MemberRepository {
     public Optional<MemberDto> findById(int id ){
         //System.out.println("findbyid : "+id);
         return DB.stream().filter(mem -> mem.getId() == id )
+                .findFirst();
+    }
+    public Optional<MemberDto> findByUsername( String username ){
+        return DB.stream().filter(mem -> mem.getUsername().equals(username) )
                 .findFirst();
     }
     public boolean existById(int id){

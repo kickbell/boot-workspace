@@ -21,7 +21,7 @@ import java.util.List;
 @Tag( name = "MemberAPI", description = "회원 도메인 API")
 @RestController
 @RequestMapping("api/v1")
-public class SwaggerController {
+public class SwaggerController { //http://localhost:10000/api/v1/members
     List<MemberDto> DB = new ArrayList<>();
     @GetMapping("members")
     @Operation(
@@ -44,10 +44,13 @@ public class SwaggerController {
                     ))
     })
     public ResponseEntity< List<MemberDto> > apiTest(){
-        DB.add( new MemberDto(0,"aaa","aaa","a-role"));
-        DB.add( new MemberDto(1,"bbb","bbb","b-role"));
-        DB.add( new MemberDto(2,"ccc","ccc","c-role"));
+        if(DB.size() == 0 ) {
+            DB.add(new MemberDto(0, "aaaS", "aaa", "a-role"));
+            DB.add(new MemberDto(1, "bbbS", "bbb", "b-role"));
+            DB.add(new MemberDto(2, "cccS", "ccc", "c-role"));
+        }
         return ResponseEntity.ok(DB);
+        //return ResponseEntity.status(HttpStatus.NOT_FOUND).body(DB);
     }
     @GetMapping("members/{id}")
     @Operation(

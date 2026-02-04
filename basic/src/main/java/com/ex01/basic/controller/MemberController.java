@@ -1,17 +1,29 @@
 package com.ex01.basic.controller;
 
+import com.ex01.basic.dto.LoginDto;
 import com.ex01.basic.dto.MemberDto;
+import com.ex01.basic.exception.InvalidLoginException;
 import com.ex01.basic.exception.MemberDuplicateException;
 import com.ex01.basic.exception.MemberNotFoundException;
 import com.ex01.basic.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@Tag(name="MemberAPI" , description = "회원 도메인 API")
 @RestController
 @RequestMapping("/members")
+@Slf4j
 public class MemberController {
     private MemberService memberService;
 
@@ -23,6 +35,35 @@ public class MemberController {
         System.out.println("member ctrl 생성자");
     }
  */
+
+    @PostMapping("/login") //members/login
+    @Operation(
+            summary = "로그인",
+            description = "username과 password 인증"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "로그인 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Integer.class, example = "0")
+                    )
+            ),
+            @ApiResponse(responseCode = "401", description = "아이디 또는 비번 틀림",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Integer.class, example = "1")
+                    ))
+    })
+    public ResponseEntity<Integer> login(@RequestBody LoginDto loginDto){
+        System.out.println("loginDto => " + loginDto );
+        try{
+            memberService.login( loginDto );
+        } catch (InvalidLoginException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(1);
+        }
+        return ResponseEntity.ok(0);
+    }
+
     @GetMapping("test")
     public ResponseEntity<String> getTest(){
         System.out.println("service : " + memberService );
@@ -31,6 +72,38 @@ public class MemberController {
     }
 
     @GetMapping
+    @Operation(
+            summary = "모든 사용자 Read",
+            description = "회원 목록 조회"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MemberDto[].class, example = """
+                                    [
+                                        {
+                                            "id" : 1,
+                                            "username" : "aaa",
+                                            "password" : "111",
+                                            "role" : "USER"
+                                        }
+                                    ]
+                                    """)
+/*
+                            array = @ArraySchema(
+                                    schema = @Schema(implementation = MemberDto.class)
+                            )
+
+ */
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "사용자 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value="null")
+                    ))
+    })
     public ResponseEntity<List<MemberDto> > getList(){
         List<MemberDto> list = null;
         try {
@@ -44,6 +117,19 @@ public class MemberController {
     }
 
     @GetMapping("/{id}") // /members/{id}
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = MemberDto.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "사용자 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value="null")
+                    ))
+    })
     public ResponseEntity<MemberDto> getOne(@PathVariable("id") int id){
         MemberDto memberDto = null;
         //System.out.println("연결 확인 : "+id);
@@ -56,7 +142,20 @@ public class MemberController {
         return ResponseEntity.ok(memberDto);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<Void> update( @ModelAttribute MemberDto memberDto,
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "수정 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Void.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "수정 사용자 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Void.class)
+                    ))
+    })
+    public ResponseEntity<Void> update( @ParameterObject @ModelAttribute MemberDto memberDto,
                                         @PathVariable("id") int id ){
         try {
             memberService.modify( id , memberDto );
@@ -67,6 +166,19 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
     @DeleteMapping("{id}")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "삭제 성공(내용 없음)",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Void.class)
+                    )
+            ),
+            @ApiResponse(responseCode = "404", description = "삭제 사용자 없음",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = Void.class)
+                    ))
+    })
     public ResponseEntity<Void> deleteMember(@PathVariable("id") int id){
         try {
             memberService.delMember( id );
@@ -76,7 +188,20 @@ public class MemberController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
     @PostMapping
-    public ResponseEntity<String> register(@ModelAttribute MemberDto memberDto){
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "추가 성공",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = String.class, example = "추가성공")
+                    )
+            ),
+            @ApiResponse(responseCode = "409", description = "중복 id",
+                    content = @Content(
+                            mediaType = "application/json",
+                            examples = @ExampleObject(value="중복된 id 입니다")
+                    ))
+    })
+    public ResponseEntity<String> register(@ParameterObject @ModelAttribute MemberDto memberDto){
         try {
             memberService.insert( memberDto );
         } catch (MemberDuplicateException e) {

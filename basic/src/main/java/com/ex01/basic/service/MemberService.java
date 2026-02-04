@@ -1,6 +1,8 @@
 package com.ex01.basic.service;
 
+import com.ex01.basic.dto.LoginDto;
 import com.ex01.basic.dto.MemberDto;
+import com.ex01.basic.exception.InvalidLoginException;
 import com.ex01.basic.exception.MemberDuplicateException;
 import com.ex01.basic.exception.MemberNotFoundException;
 import com.ex01.basic.repository.MemberRepository;
@@ -8,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MemberService {
@@ -56,6 +59,20 @@ public class MemberService {
         if( bool )
             throw new MemberDuplicateException("중복 id");
         memberRepository.save( memberDto );
+    }
+    public void login( LoginDto loginDto ){
+        Optional<MemberDto> memberDto =
+                        memberRepository.findByUsername( loginDto.getUsername() );
+        memberDto.ifPresentOrElse(
+                mem -> {
+                    //mem.getPassword().equals( loginDto.getPassword()) == false
+                    if( !mem.getPassword().equals( loginDto.getPassword()) )
+                        throw new InvalidLoginException("비밀번호 틀림");
+                },
+                () -> {
+                    throw new InvalidLoginException("사용자 id 없음");
+                }
+        );
     }
 }
 
