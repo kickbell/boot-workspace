@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,9 @@ public class MemberService {
     private MemberRepository memberRepository;
     @Autowired
     private MemRepository memRepository;
+    @Autowired
+    private MemberFileService memberFileService;
+
 
     public MemberService(){
         System.out.println("MemberService 생성자");
@@ -85,12 +89,14 @@ public class MemberService {
             throw new MemberNotFoundException("삭제 사용자 없음");
         memRepository.deleteById( id );
     }
-    public void insert(MemberRegDto memberRegDto ){
-        //boolean bool = memberRepository.existById( memberDto.getId() );
+    public void insert(MemberRegDto memberRegDto, MultipartFile multipartFile){
         boolean bool = memRepository.existsByUsername( memberRegDto.getUsername() );
         if( bool )
             throw new MemberDuplicateException("중복 id");
-        //memberRepository.save( memberDto );
+
+        String fileName = memberFileService.saveFile( multipartFile );
+        memberRegDto.setFileName( fileName );
+
         MemberEntity memberEntity = new MemberEntity();
         BeanUtils.copyProperties(memberRegDto, memberEntity);
         memRepository.save( memberEntity );

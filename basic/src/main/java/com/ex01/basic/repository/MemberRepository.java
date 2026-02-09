@@ -14,9 +14,9 @@ public class MemberRepository {
     public MemberRepository(){
         //System.out.println("MemberRepository 생성자");
         DB = new ArrayList<>();
-        DB.add(new MemberDto(1,"aaa","aaaS","USER") );
-        DB.add(new MemberDto(2,"bbb","bbbS","USER") );
-        DB.add(new MemberDto(3,"ccc","cccS","USER") );
+        DB.add(new MemberDto(1,"aaa","aaaS","USER","nan") );
+        DB.add(new MemberDto(2,"bbb","bbbS","USER","nan") );
+        DB.add(new MemberDto(3,"ccc","cccS","USER","nan") );
     }
     public List<MemberDto> findAll(){
         return DB;

@@ -3,6 +3,7 @@ package com.ex01.basic.controller;
 import com.ex01.basic.dto.LoginDto;
 import com.ex01.basic.dto.MemberDto;
 import com.ex01.basic.dto.MemberRegDto;
+import com.ex01.basic.service.MemberFileService;
 import com.ex01.basic.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -13,9 +14,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -25,15 +30,33 @@ import java.util.Map;
 @Slf4j
 public class MemberController {
     private MemberService memberService;
+    @Autowired
+    private MemberFileService memberFileService;
 
     public MemberController( MemberService memberService){
         this.memberService = memberService;
     }
-/*
-    public MemberController(){
-        System.out.println("member ctrl 생성자");
+
+    @GetMapping("{fileName}/image")
+    @Operation(
+            summary = "회원 이미지 조회",
+            description = "프로필의 이미지 다운로드"
+    )
+    @ApiResponses({
+            @ApiResponse( responseCode = "200" , description = "이미지 조회 성공",
+            content = @Content(
+                    mediaType = "image/*",
+                    schema = @Schema(implementation = Byte.class )
+            )),
+            @ApiResponse( responseCode = "404", description = "이미지 없음")
+    })
+    public ResponseEntity<byte[]> getMemberImage(@PathVariable("fileName") String fileName){
+        byte[] imageByte = null;
+        imageByte = memberFileService.getImage( fileName );
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "image/jpg")
+                .body(imageByte);
     }
- */
 
     @PostMapping("/login") //members/login
     @Operation(
@@ -108,7 +131,7 @@ public class MemberController {
                     ))
     })
     public ResponseEntity< Map<String, Object> > getList(
-            @RequestParam( name="start", defaultValue = "0") int start ){//start
+            @RequestParam(  value="start", defaultValue = "0") int start ){//start
         System.out.println("start : "+start);
         Map<String, Object> map = null;
         //try {
@@ -185,15 +208,17 @@ public class MemberController {
                             schema = @Schema(implementation = Void.class)
                     ))
     })
-    public ResponseEntity<Void> deleteMember(@PathVariable("id") int id){
+    public ResponseEntity<Void> deleteMember(@PathVariable("id") int id,
+                                             @RequestBody String fileName ){
         //try {
             memberService.delMember( id );
+            memberFileService.deleteFile( fileName );
        // } catch (MemberNotFoundException e) {
         //    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         //}
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "추가 성공",
                     content = @Content(
@@ -208,20 +233,11 @@ public class MemberController {
                     ))
     })
     public ResponseEntity<String> register(
+            @RequestParam( value="file", required = false ) MultipartFile multipartFile,
                             @ParameterObject
                             @ModelAttribute MemberRegDto memberRegDto){
-        /*
-        try {
-            Thread.sleep(1000);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        */
-        //try {
-            memberService.insert( memberRegDto );
-       // } catch (MemberDuplicateException e) {
-        //    return ResponseEntity.status(HttpStatus.CONFLICT).body("동일 id 존재");
-       // }
+        //System.out.println("multipartFile : " + multipartFile );
+        memberService.insert( memberRegDto , multipartFile);
         return ResponseEntity.status(HttpStatus.CREATED).body("회원 가입 성공");
     }
 }

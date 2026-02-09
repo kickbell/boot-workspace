@@ -19,5 +19,6 @@ public class MemberEntity {
     private String password;
     @Column( nullable = false )
     private String role;
+    private String fileName;
 }
 
