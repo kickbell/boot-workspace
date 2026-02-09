@@ -1,5 +1,6 @@
 package com.example.db_test.service;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import com.example.db_test.dto.MemberAllDto;
 import com.example.db_test.dto.MemberModifyDto;
 import com.example.db_test.dto.MemberRegDto;
@@ -9,6 +10,7 @@ import com.example.db_test.exception.MemberNotFoundException;
 import com.example.db_test.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -32,11 +34,18 @@ public class MemberService {
         Pageable pageable = PageRequest.of(start, size,
                                         Sort.by(Sort.Order.desc("number")) );
                     // entity = [ {}, {}, {} ]
+        Page<MemberEntity> page = memberRepository.findAll( pageable );
+        System.out.println( page.getTotalPages() );
+        List<MemberAllDto> list = page.stream()
+                .map( memEntity -> new MemberAllDto(memEntity) )
+                .toList();
+        /*
         List<MemberAllDto> list = memberRepository.findAll( pageable )
                 .stream()
                 //.map( MemberAllDto::new )
                 .map( memEntity -> new MemberAllDto(memEntity) )
                 .toList();
+         */
         if( list.isEmpty() )
             throw new MemberNotFoundException("저장 데이터 없음!!!");
         return list;
@@ -55,6 +64,7 @@ public class MemberService {
     }
 
     public void insert( MemberRegDto memberRegDto ){
+        System.out.println("사용자 추가");
         boolean bool = memberRepository.existsByUserId( memberRegDto.getUserId() );
         if( bool )
             throw new MemberDuplicateException("동일한 id가 있음. 다른 id 입력");

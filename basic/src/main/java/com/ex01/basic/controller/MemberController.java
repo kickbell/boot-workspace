@@ -2,9 +2,7 @@ package com.ex01.basic.controller;
 
 import com.ex01.basic.dto.LoginDto;
 import com.ex01.basic.dto.MemberDto;
-import com.ex01.basic.exception.InvalidLoginException;
-import com.ex01.basic.exception.MemberDuplicateException;
-import com.ex01.basic.exception.MemberNotFoundException;
+import com.ex01.basic.dto.MemberRegDto;
 import com.ex01.basic.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,7 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Map;
+
 @Tag(name="MemberAPI" , description = "회원 도메인 API")
 @RestController
 @RequestMapping("/members")
@@ -55,12 +54,12 @@ public class MemberController {
                     ))
     })
     public ResponseEntity<Integer> login(@RequestBody LoginDto loginDto){
-        System.out.println("loginDto => " + loginDto );
-        try{
+        //System.out.println("loginDto => " + loginDto );
+        //try{
             memberService.login( loginDto );
-        } catch (InvalidLoginException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(1);
-        }
+        //} catch (InvalidLoginException e) {
+        //    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(1);
+        //}
         return ResponseEntity.ok(0);
     }
 
@@ -80,15 +79,19 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "성공",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = MemberDto[].class, example = """
-                                    [
-                                        {
-                                            "id" : 1,
-                                            "username" : "aaa",
-                                            "password" : "111",
-                                            "role" : "USER"
-                                        }
-                                    ]
+                            schema = @Schema(implementation = Map.class, example = """
+                                    {
+                                        "totalPage" : 10,
+                                        "currentPage" : 1,
+                                        "list" : [
+                                                        {
+                                                            "id" : 1,
+                                                            "username" : "aaa",
+                                                            "password" : "111",
+                                                            "role" : "USER"
+                                                        }
+                                                    ]
+                                    }
                                     """)
 /*
                             array = @ArraySchema(
@@ -104,16 +107,18 @@ public class MemberController {
                             examples = @ExampleObject(value="null")
                     ))
     })
-    public ResponseEntity<List<MemberDto> > getList(){
-        List<MemberDto> list = null;
-        try {
-           list = memberService.getList();
-        } catch (MemberNotFoundException e) {
+    public ResponseEntity< Map<String, Object> > getList(
+            @RequestParam( name="start", defaultValue = "0") int start ){//start
+        System.out.println("start : "+start);
+        Map<String, Object> map = null;
+        //try {
+        map = memberService.getList( start );
+        //} catch (MemberNotFoundException e) {
             //e.getMessage();
-            return ResponseEntity
-                    .status(HttpStatus.NOT_FOUND).body( list );
-        }
-        return ResponseEntity.ok(list);
+          //  return ResponseEntity
+          //          .status(HttpStatus.NOT_FOUND).body( list );
+        //}
+        return ResponseEntity.ok(map);
     }
 
     @GetMapping("/{id}") // /members/{id}
@@ -133,11 +138,11 @@ public class MemberController {
     public ResponseEntity<MemberDto> getOne(@PathVariable("id") int id){
         MemberDto memberDto = null;
         //System.out.println("연결 확인 : "+id);
-        try{
+       // try{
             memberDto = memberService.getOne( id );
-        } catch (MemberNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
+        //} catch (MemberNotFoundException e) {
+        //    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        //}
         //sel * fom member whe id={id}
         return ResponseEntity.ok(memberDto);
     }
@@ -155,13 +160,14 @@ public class MemberController {
                             schema = @Schema(implementation = Void.class)
                     ))
     })
-    public ResponseEntity<Void> update( @ParameterObject @ModelAttribute MemberDto memberDto,
+    public ResponseEntity<Void> update(
+            @ParameterObject @ModelAttribute MemberDto memberDto,
                                         @PathVariable("id") int id ){
-        try {
+       // try {
             memberService.modify( id , memberDto );
-        } catch (MemberNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+       // } catch (MemberNotFoundException e) {
+       //     return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+       // }
         //return ResponseEntity.status(HttpStatus.OK).build();
         return ResponseEntity.ok().build();
     }
@@ -180,11 +186,11 @@ public class MemberController {
                     ))
     })
     public ResponseEntity<Void> deleteMember(@PathVariable("id") int id){
-        try {
+        //try {
             memberService.delMember( id );
-        } catch (MemberNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+       // } catch (MemberNotFoundException e) {
+        //    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        //}
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
     @PostMapping
@@ -201,7 +207,9 @@ public class MemberController {
                             examples = @ExampleObject(value="중복된 id 입니다")
                     ))
     })
-    public ResponseEntity<String> register(@ParameterObject @ModelAttribute MemberDto memberDto){
+    public ResponseEntity<String> register(
+                            @ParameterObject
+                            @ModelAttribute MemberRegDto memberRegDto){
         /*
         try {
             Thread.sleep(1000);
@@ -209,11 +217,11 @@ public class MemberController {
             throw new RuntimeException(e);
         }
         */
-        try {
-            memberService.insert( memberDto );
-        } catch (MemberDuplicateException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("동일 id 존재");
-        }
+        //try {
+            memberService.insert( memberRegDto );
+       // } catch (MemberDuplicateException e) {
+        //    return ResponseEntity.status(HttpStatus.CONFLICT).body("동일 id 존재");
+       // }
         return ResponseEntity.status(HttpStatus.CREATED).body("회원 가입 성공");
     }
 }

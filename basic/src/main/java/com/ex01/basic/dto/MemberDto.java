@@ -1,5 +1,8 @@
 package com.ex01.basic.dto;
 
+import com.ex01.basic.entity.MemberEntity;
+import org.springframework.beans.BeanUtils;
+
 public class MemberDto {
     private int id;
     private String username;
@@ -11,6 +14,9 @@ public class MemberDto {
         this.username = username;
         this.password = password;
         this.role = role;
+    }
+    public MemberDto(MemberEntity memberEntity){
+        BeanUtils.copyProperties( memberEntity, this );
     }
 
     public String getRole() {
