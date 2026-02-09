@@ -169,7 +169,7 @@ public class MemberController {
         //sel * fom member whe id={id}
         return ResponseEntity.ok(memberDto);
     }
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "수정 성공",
                     content = @Content(
@@ -184,14 +184,11 @@ public class MemberController {
                     ))
     })
     public ResponseEntity<Void> update(
+            @RequestParam(value="file", required = false) MultipartFile multipartFile,
             @ParameterObject @ModelAttribute MemberDto memberDto,
                                         @PathVariable("id") int id ){
-       // try {
-            memberService.modify( id , memberDto );
-       // } catch (MemberNotFoundException e) {
-       //     return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-       // }
-        //return ResponseEntity.status(HttpStatus.OK).build();
+        memberService.modify( id , memberDto, multipartFile );
+
         return ResponseEntity.ok().build();
     }
     @DeleteMapping("{id}")

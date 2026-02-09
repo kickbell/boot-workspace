@@ -65,9 +65,15 @@ public class MemberService {
          */
     }
 
-    public void modify(int id , MemberDto memberDto ){
+    public void modify(int id , MemberDto memberDto , MultipartFile multipartFile){
         MemberEntity memberEntity = memRepository.findById(id)
                 .orElseThrow( ()-> new MemberNotFoundException("수정 사용자 없음") );
+        String changeFileName = memberFileService.saveFile(multipartFile);
+        //changeFileName : 랜덤값-db.png
+        if( !changeFileName.equals("nan") ){
+            memberFileService.deleteFile( memberDto.getFileName() );
+            memberDto.setFileName( changeFileName );
+        }
         //BeanUtils.copyProperties( memberDto, memberEntity , "username", "배제할 변수명" );
         BeanUtils.copyProperties( memberDto, memberEntity  );
         memRepository.save( memberEntity );
