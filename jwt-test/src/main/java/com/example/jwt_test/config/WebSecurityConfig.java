@@ -1,5 +1,6 @@
 package com.example.jwt_test.config;
 
+import com.example.jwt_test.exception.JwtAuthEntryPoint;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class WebSecurityConfig {
     @Autowired
+    private JwtAuthEntryPoint  jwtAuthEntryPoint;
+    @Autowired
     JwtFilter jwtFilter;
     @Bean
     public SecurityFilterChain filter(HttpSecurity http) throws Exception {
@@ -31,7 +34,10 @@ public class WebSecurityConfig {
                         ).permitAll()
                         .anyRequest().authenticated() //그 외 모든 경로는 인증해야 한다.
                 )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling( e -> e
+                        .authenticationEntryPoint(jwtAuthEntryPoint) //인증되지 않은 사용자 접근
+                );
 
         return http.build();
     }
