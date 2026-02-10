@@ -3,6 +3,7 @@ package com.example.jwt_test.controller;
 import com.example.jwt_test.dto.MemberDto;
 import com.example.jwt_test.dto.MemberRegDto;
 import com.example.jwt_test.service.MemberService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +29,7 @@ public class MemberController {
     }
 
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name="JWT")
     public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
         memberService.delete(id);
         return ResponseEntity.ok().build();
