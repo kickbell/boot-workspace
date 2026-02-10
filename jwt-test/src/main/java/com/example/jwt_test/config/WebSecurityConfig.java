@@ -32,6 +32,7 @@ public class WebSecurityConfig {
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**"
                         ).permitAll()
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated() //그 외 모든 경로는 인증해야 한다.
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

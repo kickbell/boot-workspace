@@ -23,6 +23,7 @@ public class MemberEntity {
     @PrePersist //role null일 경우 초기화 신규 *
     public void prePersist(){
         if( this.role == null)
-            this.role = "USER";
+//            this.role = "USER"; //사용자
+            this.role = "ADMIN";  //관리자
     }
 }
