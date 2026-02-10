@@ -25,6 +25,7 @@ import java.util.Map;
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
     @PostMapping("/login")
     public ResponseEntity<Map<String,Object>> login(
@@ -46,7 +47,7 @@ public class AuthController {
         System.out.println("name : " + userDetails.getUsername());
         System.out.println("auth : " + userDetails.getAuthorities());
 
-        String resultToken = JwtUtil.generateToken(userDetails.getUsername());
+        String resultToken = jwtUtil.generateToken(userDetails.getUsername());
 //        System.out.println("resultToken : " + resultToken);
 
 //        이거 두줄이랑 아래 컬렉션 어쩌구랑 같은 코드.

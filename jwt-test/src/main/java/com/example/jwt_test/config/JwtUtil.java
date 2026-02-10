@@ -3,15 +3,17 @@ package com.example.jwt_test.config;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.Date;
 
+@Component
 public class JwtUtil {
-    private static String secretKey = "test1234"; // 서명(Signature)을 만들 때 사용하는 '비밀 열쇠'입니다.
-    private static final long expirationMs = 1000 * 60; // 토큰의 유통기한입니다.
+    private String secretKey = "test1234"; // 서명(Signature)을 만들 때 사용하는 '비밀 열쇠'입니다.
+    private final long expirationMs = 1000 * 60; // 토큰의 유통기한입니다.
 
-    public static String generateToken(String username) { // 0개의 사용위치 신규 *
+    public String generateToken(String username) { // 0개의 사용위치 신규 *
         Claims claims = Jwts.claims(); //토큰에 담을 정보 조각들(Claims)을 담는 바구니
         claims.put("username", username); //바구니에 "이 토큰의 주인은 누구(username)이다"라는 정보를 저장합니다.
         claims.put("name", "추가이름");
