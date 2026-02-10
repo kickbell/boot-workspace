@@ -1,5 +1,6 @@
 package com.example.jwt_test.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -8,11 +9,14 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
 @EnableWebSecurity
 @Configuration
 public class WebSecurityConfig {
+    @Autowired
+    JwtFilter jwtFilter;
     @Bean
     public SecurityFilterChain filter(HttpSecurity http) throws Exception {
         http
@@ -26,7 +30,9 @@ public class WebSecurityConfig {
                                 "/swagger-ui/**"
                         ).permitAll()
                         .anyRequest().authenticated() //그 외 모든 경로는 인증해야 한다.
-                );
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 

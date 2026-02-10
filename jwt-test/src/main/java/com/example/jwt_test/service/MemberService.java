@@ -41,4 +41,11 @@ public class MemberService {
         BeanUtils.copyProperties(memberRegDto, memberEntity);
         memberRepository.save(memberEntity);
     }
+
+    public void delete(Long id) { // 1개 사용 위치 신규 *
+        if (!memberRepository.existsById(id))
+            throw new MemberNotFoundException("삭제할 사용자가 없습니다!!");
+
+        memberRepository.deleteById(id);
+    }
 }
