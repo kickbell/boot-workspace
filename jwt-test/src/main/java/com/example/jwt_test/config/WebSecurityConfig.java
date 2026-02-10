@@ -2,6 +2,7 @@ package com.example.jwt_test.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -17,13 +18,14 @@ public class WebSecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(
-                                "/members/**"
-                        ).permitAll()
+                        .requestMatchers(HttpMethod.GET, "/members").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/members").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**"
                         ).permitAll()
+                        .anyRequest().authenticated() //그 외 모든 경로는 인증해야 한다.
                 );
         return http.build();
     }
