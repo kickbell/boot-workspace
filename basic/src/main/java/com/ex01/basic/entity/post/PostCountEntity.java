@@ -31,4 +31,13 @@ public class PostCountEntity {
     )
     private MemberEntity memberEntity;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "post_id",
+            nullable = false,
+            foreignKey = @ForeignKey(
+                    foreignKeyDefinition = "FOREIGN KEY(post_id) REFERENCES post(id) ON DELETE CASCADE"
+            )
+    )
+    private PostEntity postEntity;
 }
