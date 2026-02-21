@@ -192,20 +192,20 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
     @DeleteMapping("{id}")
-    @ApiResponses({
-            @ApiResponse(responseCode = "204", description = "삭제 성공(내용 없음)",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = Void.class)
-                    )
-            ),
-            @ApiResponse(responseCode = "404", description = "삭제 사용자 없음",
-                    content = @Content(
-                            mediaType = "application/json",
-                            schema = @Schema(implementation = Void.class)
-                    ))
-    })
-    public ResponseEntity<Void> deleteMember(@PathVariable("id") int id,
+//    @ApiResponses({
+//            @ApiResponse(responseCode = "204", description = "삭제 성공(내용 없음)",
+//                    content = @Content(
+//                            mediaType = "application/json",
+//                            schema = @Schema(implementation = Void.class)
+//                    )
+//            ),
+//            @ApiResponse(responseCode = "404", description = "삭제 사용자 없음",
+//                    content = @Content(
+//                            mediaType = "application/json",
+//                            schema = @Schema(implementation = Void.class)
+//                    ))
+//    })
+    public ResponseEntity<String> deleteMember(@PathVariable("id") int id,
                                              @RequestBody String fileName ){
         //try {
             memberService.delMember( id );
@@ -213,7 +213,8 @@ public class MemberController {
        // } catch (MemberNotFoundException e) {
         //    return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         //}
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+//        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.ok("성공적으로 삭제되었습니다. ID: " + id);
     }
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiResponses({

@@ -33,50 +33,53 @@ public class MemberService {
     private MemberFileService memberFileService;
 
 
-    public MemberService(){
+    public MemberService() {
         System.out.println("MemberService 생성자");
     }
-    public void serviceTest(){
+
+    public void serviceTest() {
         //System.out.println("서비스 test 연결 : "+memberRepository);
         //memberRepository.repositoryTest();
     }
-    public Map<String, Object> getList( int start ){
-        int size = 3;
-        Pageable pageable = PageRequest.of(start, size, Sort.by(Sort.Order.desc("id")) );
 
-        Page<MemberEntity> page = memRepository.findAll( pageable );
-        if( page.isEmpty() )
+    public Map<String, Object> getList(int start) {
+        int size = 3;
+        Pageable pageable = PageRequest.of(start, size, Sort.by(Sort.Order.desc("id")));
+
+        Page<MemberEntity> page = memRepository.findAll(pageable);
+        if (page.isEmpty())
             throw new MemberNotFoundException("데이터 없다");
         Map<String, Object> map = new HashMap<>();
         map.put("list", page.stream()
-                .map( memberEntity -> new MemberDto(memberEntity) )
-                .toList() );
-        map.put("totalPage", page.getTotalPages() );
-        map.put("currentPage", page.getNumber() + 1 );
+                .map(memberEntity -> new MemberDto(memberEntity))
+                .toList());
+        map.put("totalPage", page.getTotalPages());
+        map.put("currentPage", page.getNumber() + 1);
 
         return map;
     }
-    public MemberDto getOne(int id ){
+
+    public MemberDto getOne(int id) {
         return memRepository.findById(id)
-                .map( MemberDto::new )
-                .orElseThrow( MemberNotFoundException::new );
+                .map(MemberDto::new)
+                .orElseThrow(MemberNotFoundException::new);
         /*return memberRepository.findById(id)
                 .orElseThrow( MemberNotFoundException::new );
          */
     }
 
-    public void modify(int id , MemberDto memberDto , MultipartFile multipartFile){
+    public void modify(int id, MemberDto memberDto, MultipartFile multipartFile) {
         MemberEntity memberEntity = memRepository.findById(id)
-                .orElseThrow( ()-> new MemberNotFoundException("수정 사용자 없음") );
+                .orElseThrow(() -> new MemberNotFoundException("수정 사용자 없음"));
         String changeFileName = memberFileService.saveFile(multipartFile);
         //changeFileName : 랜덤값-db.png
-        if( !changeFileName.equals("nan") ){
-            memberFileService.deleteFile( memberDto.getFileName() );
-            memberDto.setFileName( changeFileName );
+        if (!changeFileName.equals("nan")) {
+            memberFileService.deleteFile(memberDto.getFileName());
+            memberDto.setFileName(changeFileName);
         }
         //BeanUtils.copyProperties( memberDto, memberEntity , "username", "배제할 변수명" );
-        BeanUtils.copyProperties( memberDto, memberEntity  );
-        memRepository.save( memberEntity );
+        BeanUtils.copyProperties(memberDto, memberEntity);
+        memRepository.save(memberEntity);
         /*
         boolean bool = memberRepository.existById( id );
         if( !bool ) //bool ==false
@@ -84,36 +87,35 @@ public class MemberService {
         memberRepository.save( id, memberDto );
          */
     }
-    public void delMember(int id ){
-        /*
-        boolean bool =  memberRepository.existById(id);
-        if( !bool )
-           throw new MemberNotFoundException("삭제 사용자 없음");
-         */
-        //boolean bool =  memberRepository.deleteById( id );
-        if( !memRepository.existsById(id) )
-            throw new MemberNotFoundException("삭제 사용자 없음");
-        memRepository.deleteById( id );
+
+    public void delMember(int id) {
+        MemberEntity memberEntity = memRepository.findById(id).orElseThrow(
+                () -> new MemberNotFoundException("삭제 사용자 없음")
+        );
+        memberEntity.getPosts().forEach(post -> post.setMemberEntity(null));
+        memRepository.deleteById(id);
     }
-    public void insert(MemberRegDto memberRegDto, MultipartFile multipartFile){
-        boolean bool = memRepository.existsByUsername( memberRegDto.getUsername() );
-        if( bool )
+
+    public void insert(MemberRegDto memberRegDto, MultipartFile multipartFile) {
+        boolean bool = memRepository.existsByUsername(memberRegDto.getUsername());
+        if (bool)
             throw new MemberDuplicateException("중복 id");
 
-        String fileName = memberFileService.saveFile( multipartFile );
-        memberRegDto.setFileName( fileName );
+        String fileName = memberFileService.saveFile(multipartFile);
+        memberRegDto.setFileName(fileName);
 
         MemberEntity memberEntity = new MemberEntity();
         BeanUtils.copyProperties(memberRegDto, memberEntity);
-        memRepository.save( memberEntity );
+        memRepository.save(memberEntity);
     }
-    public void login( LoginDto loginDto ){
+
+    public void login(LoginDto loginDto) {
         //Optional<MemberDto> memberDto = memberRepository.findByUsername( loginDto.getUsername() );
         Optional<MemberEntity> optional =
-                            memRepository.findByUsername( loginDto.getUsername() );
+                memRepository.findByUsername(loginDto.getUsername());
         optional.ifPresentOrElse(
                 mem -> {
-                    if( !mem.getPassword().equals( loginDto.getPassword()) )
+                    if (!mem.getPassword().equals(loginDto.getPassword()))
                         throw new InvalidLoginException("비밀번호 틀림");
                 },
                 () -> {
