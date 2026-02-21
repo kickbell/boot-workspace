@@ -28,7 +28,7 @@ public class PostCountEntity {
             name = "member_id",
             nullable = true,
             foreignKey = @ForeignKey(
-                    foreignKeyDefinition = "FOREIGN KEY(member_id) REFERENCES member_test(number) ON DELETE SET NULL"
+                    foreignKeyDefinition = "FOREIGN KEY(member_id) REFERENCES member_test(id) ON DELETE SET NULL"
             )
     )
     private MemberEntity memberEntity;

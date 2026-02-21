@@ -4,11 +4,13 @@ import com.ex01.basic.dto.post.PostAllDto;
 import com.ex01.basic.dto.post.PostDetailDto;
 import com.ex01.basic.dto.post.PostDto;
 import com.ex01.basic.entity.MemberEntity;
+import com.ex01.basic.entity.post.PostCountEntity;
 import com.ex01.basic.entity.post.PostEntity;
 import com.ex01.basic.exception.MemberNotFoundException;
 import com.ex01.basic.exception.post.PostNotFoundException;
 import com.ex01.basic.repository.MemRepository;
 import com.ex01.basic.repository.MemberRepository;
+import com.ex01.basic.repository.post.PostCountRepository;
 import com.ex01.basic.repository.post.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
@@ -22,6 +24,7 @@ import java.util.List;
 public class PostService {
     private final PostRepository postRepository;
     private final MemRepository memRepository;
+    private final PostCountRepository postCountRepository;
 
     public void insert(PostDto postDto) {
         MemberEntity memberEntity = memRepository.findById(postDto.getNumber())
@@ -48,7 +51,7 @@ public class PostService {
                 .toList();
     }
 
-    public PostDetailDto getPostOne(Long postId, Long memberId) {
+    public PostDetailDto getPostOne(Long postId, Integer memberId) {
         PostDetailDto postDetailDto = postRepository.findById(postId)
                 .map(PostDetailDto::new)
                 .orElseThrow(
@@ -59,8 +62,22 @@ public class PostService {
         return postDetailDto;
     }
 
-    private void increaseView(Long id, Long number) {
+    private void increaseView(Long postId, Integer memberId) {
+        boolean result = postCountRepository.existsByPostEntity_IdAndMemberEntity_Id(postId, memberId);
 
+        System.out.println("post id:" + postId);
+        System.out.println("member id:" + memberId);
+        System.out.println("중복 테이블 여부" + result);
+
+        if (!result) {
+            PostEntity postEntity = postRepository.getReferenceById(postId);
+            MemberEntity memberEntity = memRepository.getReferenceById(memberId);
+            PostCountEntity postCountEntity = new PostCountEntity(memberEntity, postEntity);
+
+            postCountRepository.save(postCountEntity);
+        } else {
+            System.out.println("이미 조회한 게시글입니다.");
+        }
     }
 
 }
