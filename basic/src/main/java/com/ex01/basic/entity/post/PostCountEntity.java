@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(
         name = "post_count",
@@ -40,4 +42,16 @@ public class PostCountEntity {
             )
     )
     private PostEntity postEntity;
+
+    @Column(nullable = false, updatable = false)
+    private LocalDateTime createAt;
+
+    @PrePersist
+    public void onCreate(){
+        this.createAt = LocalDateTime.now();
+    }
+    public PostCountEntity(MemberEntity memberEntity, PostEntity postEntity){
+        this.memberEntity = memberEntity;
+        this.postEntity = postEntity;
+    }
 }
