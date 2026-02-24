@@ -13,7 +13,7 @@ public class JwtUtil {
     @Value("${jwt.secretKey}")
     private String secretKey;
     //    private String secretKey = "test1234"; // 서명(Signature)을 만들 때 사용하는 '비밀 열쇠'입니다.
-    private final long expirationMs = 1000 * 60; // 토큰의 유통기한입니다.
+    private final long expirationMs = 1000 * 60 * 5; // 토큰의 유통기한입니다.
 
     public String generateToken(String username) { // 0개의 사용위치 신규 *
         System.out.println("secretKey :" + secretKey);
