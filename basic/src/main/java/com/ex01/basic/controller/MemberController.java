@@ -1,5 +1,6 @@
 package com.ex01.basic.controller;
 
+import com.ex01.basic.config.JwtUtil;
 import com.ex01.basic.dto.LoginDto;
 import com.ex01.basic.dto.MemberDto;
 import com.ex01.basic.dto.MemberRegDto;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,16 +29,14 @@ import java.util.Map;
 
 @Tag(name="MemberAPI" , description = "회원 도메인 API")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/members")
 @Slf4j
 public class MemberController {
     private MemberService memberService;
-    @Autowired
     private MemberFileService memberFileService;
-
-    public MemberController( MemberService memberService){
-        this.memberService = memberService;
-    }
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
     @GetMapping("{fileName}/image")
     @Operation(
