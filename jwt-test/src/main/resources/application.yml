@@ -1,6 +1,4 @@
-server:
-  port: 3000  # 여기서 포트 번호를 관리하면 됩니다.
-
+# 스프링 설정
 spring:
   application:
     name: jwt-test
@@ -13,10 +11,10 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: create
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+
+# 서버 설정
+server:
+  port: 10000
 
 # 사용자 정의 설정 (JWT 등)
 jwt:
