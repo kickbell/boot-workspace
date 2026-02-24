@@ -30,6 +30,8 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/members").permitAll()
                         .requestMatchers(HttpMethod.POST, "/members").permitAll()
                         .requestMatchers(HttpMethod.POST, "/members/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/post").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/post").permitAll()
                         .requestMatchers(
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**"

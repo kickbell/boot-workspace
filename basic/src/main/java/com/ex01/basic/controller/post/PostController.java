@@ -4,6 +4,7 @@ import com.ex01.basic.dto.post.PostAllDto;
 import com.ex01.basic.dto.post.PostDetailDto;
 import com.ex01.basic.dto.post.PostDto;
 import com.ex01.basic.service.post.PostService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
@@ -30,6 +31,7 @@ public class PostController {
     }
 
     @GetMapping("{id}")
+    @SecurityRequirement(name="JWT")
     public ResponseEntity<PostDetailDto> getPostOne(
             @RequestParam("postId") Long postId,
             @RequestParam("memberId") Integer memberId){
